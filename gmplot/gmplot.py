@@ -206,7 +206,7 @@ class GoogleMapPlotter(object):
                 '<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>\n')
             f.write('<title>Google Maps - pygmaps </title>\n')
             if api_key:
-                f.write('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false&key%s"></script>\n' % str(api_key))
+                f.write('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false&key=%s"></script>\n' % str(api_key))
             else:
                 f.write('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>\n')
             f.write('<script type="text/javascript">\n')
