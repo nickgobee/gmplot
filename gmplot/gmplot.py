@@ -23,6 +23,7 @@ class GoogleMapPlotter(object):
         self.shapes = []
         self.points = []
         self.heatmap_points = []
+        self.weighted_heatmap_points = []
         self.radpoints = []
         self.gridsetting = None
         self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
@@ -140,6 +141,30 @@ class GoogleMapPlotter(object):
             heatmap_points.append((lat, lng))
         self.heatmap_points.append((heatmap_points, settings))
 
+    def weighted_heatmap(self, lats, lngs, weights, threshold=10, radius=10, gradient=None, opacity=0.6, dissipating=True):
+        """
+        :param lats: list of latitudes
+        :param lngs: list of longitudes
+        :param weights: list of weights 
+        :param threshold:
+        :param radius: The hardest param. Example (string):
+        :return:
+        """
+        settings = {}
+        settings['threshold'] = threshold
+        settings['radius'] = radius
+        settings['gradient'] = gradient
+        settings['opacity'] = opacity
+        settings['dissipating'] = dissipating
+        settings = self._process_heatmap_kwargs(settings)
+
+        weighted_heatmap_points = []
+        for latlng, wgt in zip(zip(lats, lngs), weights):
+            weighted_heatmap_points.append((latlng, wgt))
+        self.weighted_heatmap_points.append((weighted_heatmap_points, settings))
+
+
+
     def _process_heatmap_kwargs(self, settings_dict):
         settings_string = ''
         settings_string += "heatmap.set('threshold', %d);\n" % settings_dict['threshold']
@@ -171,33 +196,36 @@ class GoogleMapPlotter(object):
     # create the html file which include one google map and all points and
     # paths
     def draw(self, htmlfile):
-        f = open(htmlfile, 'w')
-        f.write('<html>\n')
-        f.write('<head>\n')
-        f.write(
-            '<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />\n')
-        f.write(
-            '<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>\n')
-        f.write('<title>Google Maps - pygmaps </title>\n')
-        f.write('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>\n')
-        f.write('<script type="text/javascript">\n')
-        f.write('\tfunction initialize() {\n')
-        self.write_map(f)
-        self.write_grids(f)
-        self.write_points(f)
-        self.write_paths(f)
-        self.write_shapes(f)
-        self.write_heatmap(f)
-        f.write('\t}\n')
-        f.write('</script>\n')
-        f.write('</head>\n')
-        f.write(
-            '<body style="margin:0px; padding:0px;" onload="initialize()">\n')
-        f.write(
-            '\t<div id="map_canvas" style="width: 100%; height: 100%;"></div>\n')
-        f.write('</body>\n')
-        f.write('</html>\n')
-        f.close()
+        api_key = os.environ.get('API_KEY')
+        with open(htmlfile, 'w') as f:
+            f.write('<html>\n')
+            f.write('<head>\n')
+            f.write(
+                '<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />\n')
+            f.write(
+                '<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>\n')
+            f.write('<title>Google Maps - pygmaps </title>\n')
+            if api_key:
+                f.write('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false&key%s"></script>\n' % str(api_key))
+            else:
+                f.write('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>\n')
+            f.write('<script type="text/javascript">\n')
+            f.write('\tfunction initialize() {\n')
+            self.write_map(f)
+            self.write_grids(f)
+            self.write_points(f)
+            self.write_paths(f)
+            self.write_shapes(f)
+            self.write_weighted_heatmap(f)
+            f.write('\t}\n')
+            f.write('</script>\n')
+            f.write('</head>\n')
+            f.write(
+                '<body style="margin:0px; padding:0px;" onload="initialize()">\n')
+            f.write(
+                '\t<div id="map_canvas" style="width: 100%; height: 100%;"></div>\n')
+            f.write('</body>\n')
+            f.write('</html>\n')
 
     #############################################
     # # # # # # Low level Map Drawing # # # # # #
@@ -358,6 +386,24 @@ class GoogleMapPlotter(object):
             f.write('});' + '\n')
             f.write('heatmap.setMap(map);' + '\n')
             f.write(settings_string)
+
+    def write_weighted_heatmap(self, f):
+        for heatmap_points, settings_string in self.weighted_heatmap_points:
+            f.write('var heatmap_points = [\n')
+            for heatmap_latlng, heatmap_wgt in heatmap_points:
+                f.write('{location: new google.maps.LatLng(%f, %f), weight: %f},\n' %
+                        (heatmap_latlng[0], heatmap_latlng[1], heatmap_wgt))
+            f.write('];\n')
+            f.write('\n')
+            f.write('var pointArray = new google.maps.MVCArray(heatmap_points);' + '\n')
+            f.write('var heatmap;' + '\n')
+            f.write('heatmap = new google.maps.visualization.HeatmapLayer({' + '\n')
+            f.write('\n')
+            f.write('data: pointArray' + '\n')
+            f.write('});' + '\n')
+            f.write('heatmap.setMap(map);' + '\n')
+            f.write(settings_string)
+
 
 if __name__ == "__main__":
 
