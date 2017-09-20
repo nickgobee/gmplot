@@ -1,6 +1,15 @@
 gmplot
 ======
 
+nickgobee Fork
+--------------
+Adds:
+- API authentication through environment variables
+- Weighted heatmap options
+
+Original README
+---------------
+
 Plotting data on Google Maps, the easy way. A matplotlib-like
 interface to generate the HTML and javascript to render all the
 data you'd like on top of Google Maps. Several plotting methods
