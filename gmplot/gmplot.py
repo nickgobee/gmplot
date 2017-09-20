@@ -196,7 +196,7 @@ class GoogleMapPlotter(object):
     # create the html file which include one google map and all points and
     # paths
     def draw(self, htmlfile):
-        api_key = os.environ.get('API_KEY')
+        api_key = os.environ.get('GMAPS_API_KEY')
         with open(htmlfile, 'w') as f:
             f.write('<html>\n')
             f.write('<head>\n')
@@ -313,6 +313,16 @@ class GoogleMapPlotter(object):
         f.write('\t\tposition: latlng\n')
         f.write('\t\t});\n')
         f.write('\t\tmarker.setMap(map);\n')
+        f.write('\n')
+        f.write('\t\tvar infowindow = new google.maps.InfoWindow({\n')
+        f.write('\t\tcontent: marker.title\n')
+        f.write('\t\t});\n')
+        f.write('\t\tgoogle.maps.event.addListener(marker,\'click\', (function(marker,infowindow){\n')
+        f.write('\t\t\t\treturn function() {\n')
+        f.write('\t\t\t\tinfowindow.setContent(marker.title);\n')
+        f.write('\t\t\t\tinfowindow.open(map,marker);\n')
+        f.write('\t\t};\n')
+        f.write('\t\t})(marker,infowindow));\n')
         f.write('\n')
 
     def write_polyline(self, f, path, settings):
