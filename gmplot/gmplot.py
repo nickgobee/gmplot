@@ -26,9 +26,8 @@ class GoogleMapPlotter(object):
         self.weighted_heatmap_points = []
         self.radpoints = []
         self.gridsetting = None
-        #self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
         # see here for available colors: http://mabp.kiev.ua/2010/01/12/google-map-markers/
-        self.coloricon = 'http://maps.google.com/intl/en_us/mapfiles/ms/micons/%s-dot.png'
+        self.coloricon = 'http://maps.google.com/intl/en_us/mapfiles/ms/micons/%s.png'
         self.color_dict = mpl_color_map
         self.html_color_codes = html_color_codes
 
@@ -53,7 +52,7 @@ class GoogleMapPlotter(object):
             color = c
         #color = self.color_dict.get(color, color)
         #color = self.html_color_codes.get(color, color)
-        self.points.append((lat, lng, color[1:], title))
+        self.points.append((lat, lng, color, title))
 
     def scatter(self, lats, lngs, color=None, size=None, marker=True, c=None, s=None, **kwargs):
         color = color or c
