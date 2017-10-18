@@ -196,7 +196,7 @@ class GoogleMapPlotter(object):
 
     # create the html file which include one google map and all points and
     # paths
-    def draw(self, htmlfile):
+    def draw(self, htmlfile, user_location=True):
         api_key = os.environ.get('GMAPS_API_KEY')
         with open(htmlfile, 'w') as f:
             f.write('<html>\n')
@@ -219,6 +219,8 @@ class GoogleMapPlotter(object):
             self.write_shapes(f)
             self.write_heatmap(f)
             self.write_weighted_heatmap(f)
+            if user_location:
+                self.add_user_location(f)
             f.write('\t}\n')
             f.write('</script>\n')
             f.write('</head>\n')
@@ -232,6 +234,28 @@ class GoogleMapPlotter(object):
     #############################################
     # # # # # # Low level Map Drawing # # # # # #
     #############################################
+
+    def add_user_location(self, f):
+    user_location_snippet = '''
+    var myloc = new google.maps.Marker({
+        clickable: false,
+        icon: new google.maps.MarkerImage('https://maps.gstatic.com/mapfiles/mobile/mobileimgs2.png',
+                                                        new google.maps.Size(22,22),
+                                                        new google.maps.Point(0,18),
+                                                        new google.maps.Point(11,11)),
+        shadow: null,
+        zIndex: 999,
+        map: map 
+    });
+
+    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function(pos) {
+        var me = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+        myloc.setPosition(me);
+    }, function(error) {
+        alert('Location error');
+    });
+    '''
+    f.write(user_location_snippet)
 
     def write_grids(self, f):
         if self.gridsetting is None:
