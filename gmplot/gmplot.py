@@ -236,26 +236,26 @@ class GoogleMapPlotter(object):
     #############################################
 
     def add_user_location(self, f):
-    user_location_snippet = '''
-    var myloc = new google.maps.Marker({
-        clickable: false,
-        icon: new google.maps.MarkerImage('https://maps.gstatic.com/mapfiles/mobile/mobileimgs2.png',
-                                                        new google.maps.Size(22,22),
-                                                        new google.maps.Point(0,18),
-                                                        new google.maps.Point(11,11)),
-        shadow: null,
-        zIndex: 999,
-        map: map 
-    });
+        user_location_snippet = '''
+        var myloc = new google.maps.Marker({
+            clickable: false,
+            icon: new google.maps.MarkerImage('https://maps.gstatic.com/mapfiles/mobile/mobileimgs2.png',
+                                                            new google.maps.Size(22,22),
+                                                            new google.maps.Point(0,18),
+                                                            new google.maps.Point(11,11)),
+            shadow: null,
+            zIndex: 999,
+            map: map 
+        });
 
-    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function(pos) {
-        var me = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-        myloc.setPosition(me);
-    }, function(error) {
-        alert('Location error');
-    });
-    '''
-    f.write(user_location_snippet)
+        if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function(pos) {
+            var me = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+            myloc.setPosition(me);
+        }, function(error) {
+            alert('Location error');
+        });
+        '''
+        f.write(user_location_snippet)
 
     def write_grids(self, f):
         if self.gridsetting is None:
